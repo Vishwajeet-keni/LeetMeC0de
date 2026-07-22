@@ -1,0 +1,69 @@
+:root {
+  --base: #1e1e2e;
+  --text: #cdd6f4;
+  --mauve: #cba6f7;
+  --surface: #313244;
+  --green: #a6e3a1;
+  --red: #f38ba8;
+}
+
+body {
+  font-family: -apple-system, sans-serif;
+  background: var(--base);
+  color: var(--text);
+  margin: 0;
+}
+
+.container {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1 {
+  color: var(--mauve);
+}
+
+h2 {
+  font-size: 15px;
+  border-bottom: 1px solid var(--surface);
+  padding-bottom: 6px;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border-radius: 6px;
+  border: 1px solid var(--surface);
+  background: var(--surface);
+  color: var(--text);
+  box-sizing: border-box;
+}
+
+button {
+  margin-top: 14px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: var(--mauve);
+  color: var(--base);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+#testResult {
+  margin-left: 8px;
+  font-size: 13px;
+}

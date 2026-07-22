@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "LeetMeC0de",
+  "short_name": "LeetMeC0de",
+  "version": "1.0.1",
+  "description": "Sync accepted LeetCode solutions straight to your own GitHub repo. Your token, your repo, no middleman.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://leetcode.com/*",
+    "https://api.github.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://leetcode.com/problems/*"],
+      "js": ["leetcode-detector.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js"],
+      "matches": ["https://leetcode.com/*"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "LeetMeC0de"
+  },
+  "options_page": "options.html"
+}

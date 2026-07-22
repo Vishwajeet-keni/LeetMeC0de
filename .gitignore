@@ -1,0 +1,25 @@
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+
+# Node (in case you add tooling later)
+node_modules/
+package-lock.json
+npm-debug.log
+
+# Extension packaging output
+*.zip
+*.crx
+*.pem
+
+# Local env / secrets — just in case
+.env
+*.local
+
+# Never commit a real token by accident
+**/config.local.json

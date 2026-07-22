@@ -1,0 +1,62 @@
+:root {
+    --base: #1e1e2e;
+    --text: #cdd6f4;
+    --mauve: #cba6f7;
+    --surface: #313244;
+}
+
+body {
+    width: 280px;
+    margin: 0;
+    font-family: -apple-system, sans-serif;
+    background: var(--base);
+    color: var(--text);
+}
+
+.container {
+    padding: 16px;
+}
+
+h1 {
+    font-size: 16px;
+    margin: 0 0 12px;
+    color: var(--mauve);
+}
+
+.status {
+    font-size: 13px;
+    margin-bottom: 12px;
+    padding: 8px;
+    border-radius: 6px;
+    background: var(--surface);
+}
+
+.toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.last-sync {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-bottom: 12px;
+    min-height: 32px;
+}
+
+button {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    background: var(--mauve);
+    color: var(--base);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.9;
+}
