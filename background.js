@@ -62,12 +62,12 @@ async function getConfig() {
   };
 }
 
-function buildHeaderComment(payload, ext) {
+function buildHeaderComment(payload, ext, difficulty) {
   const commentStyles = { py: '#', rb: '#' };
   const marker = commentStyles[ext] || '//';
   return [
-    `${marker} ${payload.slug}`,
-    `${marker} Difficulty: ${payload.difficulty || 'Unknown'}`,
+    `${marker} ${payload.title || payload.slug}`,
+    `${marker} Difficulty: ${difficulty}`,
     `${marker} Runtime: ${payload.runtime || 'N/A'} | Memory: ${payload.memory || 'N/A'}`,
     `${marker} Synced via LeetMeC0de on ${new Date().toISOString()}`
   ].join('\n');
@@ -99,7 +99,7 @@ async function handleAcceptedSubmission(payload) {
     : `${difficulty}/${folderName}`;
   const codePath = `${basePath}/${payload.slug}.${ext}`;
 
-  const header = buildHeaderComment(payload, ext);
+  const header = buildHeaderComment(payload, ext, difficulty);
   const fullContent = `${header}\n\n${payload.code}`;
 
   const commitMessage = `${payload.slug} — ${payload.runtime || 'N/A'}, ${payload.memory || 'N/A'}`;
@@ -108,6 +108,31 @@ async function handleAcceptedSubmission(payload) {
     console.log('[LeetMeC0de] Pushing to GitHub:', codePath);
     await upsertFile({ ...config, path: codePath, content: fullContent, message: commitMessage });
     console.log('[LeetMeC0de] ✅ Pushed successfully');
+
+    if (config.includeReadme) {
+      const readmePath = `${basePath}/README.md`;
+      const readmeContent = [
+        `# ${payload.title || payload.slug}`,
+        ``,
+        `**Difficulty:** ${difficulty}`,
+        ``,
+        payload.problemContent || '_Problem statement unavailable._',
+        ``
+      ].join('\n');
+
+      try {
+        await upsertFile({
+          ...config,
+          path: readmePath,
+          content: readmeContent,
+          message: `Add problem statement for ${payload.slug}`
+        });
+        console.log('[LeetMeC0de] 📄 README written');
+      } catch (err) {
+        console.warn('[LeetMeC0de] README write failed (non-fatal):', err.message);
+      }
+    }
+
     await setStatus('Synced', `${payload.slug} pushed to ${config.owner}/${config.repo}`);
   } catch (err) {
     console.error('[LeetMeC0de] ❌ GitHub push failed:', err);
