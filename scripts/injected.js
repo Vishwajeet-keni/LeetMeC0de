@@ -1,4 +1,4 @@
-// LeetMeC0de – capture submit, poll for verdict, fetch problem metadata
+// LeetMeC0de – capture submit, poll for verdict, fetch problem metadata (with retry)
 (() => {
   function getSlugFromUrl(url) {
     const m = url.match(/\/problems\/([^\/]+)\//);
@@ -15,38 +15,52 @@
     window.postMessage({ source: 'leetmec0de', type: 'SUBMISSION_ACCEPTED', payload }, '*');
   }
 
+  async function fetchQuestionMetaOnce(slug) {
+    const res = await fetch('https://leetcode.com/graphql/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: `query questionMeta($titleSlug: String!) {
+          question(titleSlug: $titleSlug) {
+            title
+            difficulty
+            content
+          }
+        }`,
+        variables: { titleSlug: slug }
+      })
+    });
+    if (!res.ok) throw new Error(`GraphQL HTTP ${res.status}`);
+    const data = await res.json();
+    const q = data && data.data && data.data.question;
+    if (!q) throw new Error('No question data in response');
+    return {
+      difficulty: q.difficulty || 'Unknown',
+      title: q.title || slug,
+      content: stripHtml(q.content)
+    };
+  }
+
+  // One retry after a short delay before giving up and falling back to Unknown.
   async function getQuestionMetaForSlug(slug) {
     try {
-      const res = await fetch('https://leetcode.com/graphql/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: `query questionMeta($titleSlug: String!) {
-            question(titleSlug: $titleSlug) {
-              title
-              difficulty
-              content
-            }
-          }`,
-          variables: { titleSlug: slug }
-        })
-      });
-      const data = await res.json();
-      const q = data && data.data && data.data.question;
-      if (!q) return { difficulty: 'Unknown', title: slug, content: '' };
-      console.log('[LeetMeC0de] 🎯 Meta for', slug, '=', q.difficulty);
-      return {
-        difficulty: q.difficulty || 'Unknown',
-        title: q.title || slug,
-        content: stripHtml(q.content)
-      };
+      const meta = await fetchQuestionMetaOnce(slug);
+      console.log('[LeetMeC0de] 🎯 Meta for', slug, '=', meta.difficulty);
+      return meta;
     } catch (e) {
-      console.warn('[LeetMeC0de] meta fetch failed', e);
-      return { difficulty: 'Unknown', title: slug, content: '' };
+      console.warn('[LeetMeC0de] meta fetch failed, retrying once…', e.message);
+      await new Promise((r) => setTimeout(r, 1500));
+      try {
+        const meta = await fetchQuestionMetaOnce(slug);
+        console.log('[LeetMeC0de] 🎯 Meta for', slug, '(retry) =', meta.difficulty);
+        return meta;
+      } catch (e2) {
+        console.warn('[LeetMeC0de] meta fetch failed again, giving up:', e2.message);
+        return { difficulty: 'Unknown', title: slug, content: '' };
+      }
     }
   }
 
-  // Poll LeetCode's own check endpoint until we get a verdict.
   async function pollForVerdict(submissionId, submissionData) {
     const url = `https://leetcode.com/submissions/detail/${submissionId}/check/`;
     for (let attempt = 0; attempt < 15; attempt++) {
@@ -68,9 +82,8 @@
           } else {
             console.log('[LeetMeC0de] ❌ Not accepted:', data.status_msg);
           }
-          return; // stop polling either way — we have a final verdict
+          return;
         }
-        // state === 'PENDING' / 'STARTED' -> keep polling
       } catch (e) {
         console.warn('[LeetMeC0de] poll error', e);
       }
@@ -124,5 +137,5 @@
     return response;
   };
 
-  console.log('[LeetMeC0de] 🚀 Injected (poll-based verdict detection + metadata capture)');
+  console.log('[LeetMeC0de] 🚀 Injected (poll-based verdict detection + metadata retry)');
 })();

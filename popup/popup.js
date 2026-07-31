@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  const config = await chrome.storage.local.get(['token', 'owner', 'repo', 'enabled', 'lastSyncStatus']);
+  const config = await chrome.storage.local.get(['token', 'owner', 'repo', 'enabled', 'syncHistory']);
   const statusEl = document.getElementById('status');
   const toggle = document.getElementById('enabledToggle');
-  const lastSyncEl = document.getElementById('lastSync');
+  const historyEl = document.getElementById('history');
 
   statusEl.textContent = (!config.token || !config.owner || !config.repo)
     ? 'Not configured – open Settings.'
@@ -10,9 +10,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   toggle.checked = config.enabled !== false;
 
-  if (config.lastSyncStatus) {
-    const time = new Date(config.lastSyncStatus.at).toLocaleTimeString();
-    lastSyncEl.textContent = `${config.lastSyncStatus.title} — ${config.lastSyncStatus.message} (${time})`;
+  const history = config.syncHistory || [];
+  if (history.length === 0) {
+    historyEl.innerHTML = '<div class="history-empty">No syncs yet</div>';
+  } else {
+    historyEl.innerHTML = history.map((entry) => {
+      const time = new Date(entry.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const icon = entry.status === 'success' ? '✅' : '❌';
+      const diffTag = entry.difficulty ? `<span class="diff-tag diff-${entry.difficulty}">${entry.difficulty}</span>` : '';
+      return `
+        <div class="history-item ${entry.status}">
+          <div class="history-top">
+            <span class="history-icon">${icon}</span>
+            <span class="history-title">${entry.title || entry.slug}</span>
+            ${diffTag}
+          </div>
+          <div class="history-meta">${entry.message || ''} · ${time}</div>
+        </div>
+      `;
+    }).join('');
   }
 
   toggle.addEventListener('change', async (e) => {

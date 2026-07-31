@@ -7,31 +7,57 @@
 </head>
 <body>
   <div class="container">
-    <h1>LeetMeC0de Settings</h1>
-    <section>
-      <h2>GitHub Access</h2>
-      <label>Token</label>
+    <div class="page-header">
+      <h1>LeetMeC0de</h1>
+      <p class="subtitle">Settings</p>
+    </div>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>GitHub Access</h2>
+        <span id="connectionDot" class="dot dot-idle"></span>
+      </div>
+
+      <label for="token">Personal Access Token</label>
       <input type="password" id="token" placeholder="github_pat_..." />
-      <label>Owner</label>
-      <input type="text" id="owner" placeholder="your-username" />
-      <label>Repo</label>
-      <input type="text" id="repo" placeholder="leetcode-solutions" />
-      <label>Branch</label>
+
+      <div class="row-2">
+        <div>
+          <label for="owner">Owner</label>
+          <input type="text" id="owner" placeholder="your-username" />
+        </div>
+        <div>
+          <label for="repo">Repo</label>
+          <input type="text" id="repo" placeholder="leetcode-solutions" />
+        </div>
+      </div>
+
+      <label for="branch">Branch</label>
       <input type="text" id="branch" placeholder="main" />
-      <button id="testBtn">Test Connection</button>
-      <span id="testResult"></span>
+
+      <div class="test-row">
+        <button id="testBtn" class="btn-secondary">Test Connection</button>
+        <span id="testResult" class="test-result"></span>
+      </div>
     </section>
-    <section>
+
+    <section class="card">
       <h2>Preferences</h2>
-      <label>Folder structure</label>
+
+      <label for="folderStructure">Folder structure</label>
       <select id="folderStructure">
-        <option value="by-difficulty">By difficulty</option>
-        <option value="flat">Flat</option>
+        <option value="by-difficulty">By difficulty (Easy / Medium / Hard)</option>
+        <option value="flat">Flat (one folder per problem)</option>
       </select>
-      <label><input type="checkbox" id="includeReadme" /> Include README</label>
+
+      <label class="checkbox-row">
+        <input type="checkbox" id="includeReadme" />
+        <span>Include problem statement as README.md</span>
+      </label>
     </section>
-    <button id="saveBtn">Save</button>
-    <div id="saveStatus"></div>
+
+    <button id="saveBtn" class="btn-primary">Save Settings</button>
+    <div id="saveStatus" class="save-status"></div>
   </div>
   <script src="options.js"></script>
 </body>

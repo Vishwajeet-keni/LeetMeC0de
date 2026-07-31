@@ -1,6 +1,7 @@
 console.log('[LeetMeC0de] Service worker started');
 
 const API_BASE = 'https://api.github.com';
+const MAX_HISTORY = 10;
 
 const EXT_BY_LANG = {
   python: 'py', python3: 'py', java: 'java', c: 'c', cpp: 'cpp', 'c++': 'cpp',
@@ -73,8 +74,13 @@ function buildHeaderComment(payload, ext, difficulty) {
   ].join('\n');
 }
 
-async function setStatus(title, message) {
-  await chrome.storage.local.set({ lastSyncStatus: { title, message, at: Date.now() } });
+// Pushes one entry onto the sync history array, capped at MAX_HISTORY, newest first.
+async function pushHistoryEntry(entry) {
+  const { syncHistory = [] } = await chrome.storage.local.get('syncHistory');
+  const updated = [{ ...entry, at: Date.now() }, ...syncHistory].slice(0, MAX_HISTORY);
+  await chrome.storage.local.set({ syncHistory: updated });
+  // Keep lastSyncStatus for backward compatibility with anything still reading it.
+  await chrome.storage.local.set({ lastSyncStatus: { ...entry, at: Date.now() } });
 }
 
 async function handleAcceptedSubmission(payload) {
@@ -87,7 +93,7 @@ async function handleAcceptedSubmission(payload) {
   }
   if (!config.token || !config.owner || !config.repo) {
     console.warn('[LeetMeC0de] Not configured');
-    await setStatus('Not configured', 'Open extension options to add your GitHub token and repo.');
+    await pushHistoryEntry({ slug: payload.slug, status: 'failed', title: 'Not configured', message: 'Open extension options to add your GitHub token and repo.' });
     return;
   }
 
@@ -111,32 +117,45 @@ async function handleAcceptedSubmission(payload) {
 
     if (config.includeReadme) {
       const readmePath = `${basePath}/README.md`;
-      const readmeContent = [
-        `# ${payload.title || payload.slug}`,
-        ``,
-        `**Difficulty:** ${difficulty}`,
-        ``,
-        payload.problemContent || '_Problem statement unavailable._',
-        ``
-      ].join('\n');
 
       try {
-        await upsertFile({
-          ...config,
-          path: readmePath,
-          content: readmeContent,
-          message: `Add problem statement for ${payload.slug}`
-        });
-        console.log('[LeetMeC0de] 📄 README written');
+        const existingReadme = await getFile({ ...config, path: readmePath });
+        if (existingReadme) {
+          console.log('[LeetMeC0de] 📄 README already exists, skipping (same problem, different language)');
+        } else {
+          const readmeContent = [
+            `# ${payload.title || payload.slug}`,
+            ``,
+            `**Difficulty:** ${difficulty}`,
+            ``,
+            payload.problemContent || '_Problem statement unavailable._',
+            ``
+          ].join('\n');
+
+          await upsertFile({ ...config, path: readmePath, content: readmeContent, message: `Add problem statement for ${payload.slug}` });
+          console.log('[LeetMeC0de] 📄 README written');
+        }
       } catch (err) {
-        console.warn('[LeetMeC0de] README write failed (non-fatal):', err.message);
+        console.warn('[LeetMeC0de] README check/write failed (non-fatal):', err.message);
       }
     }
 
-    await setStatus('Synced', `${payload.slug} pushed to ${config.owner}/${config.repo}`);
+    await pushHistoryEntry({
+      slug: payload.slug,
+      title: payload.title || payload.slug,
+      difficulty,
+      status: 'success',
+      message: `Pushed to ${config.owner}/${config.repo}`
+    });
   } catch (err) {
     console.error('[LeetMeC0de] ❌ GitHub push failed:', err);
-    await setStatus('Sync failed', err.message);
+    await pushHistoryEntry({
+      slug: payload.slug,
+      title: payload.title || payload.slug,
+      difficulty,
+      status: 'failed',
+      message: err.message
+    });
     throw err;
   }
 }
@@ -148,6 +167,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     handleAcceptedSubmission(message.payload)
       .then(() => sendResponse({ ok: true }))
       .catch((err) => sendResponse({ ok: false, error: err.message }));
-    return true; // async response
+    return true;
   }
 });

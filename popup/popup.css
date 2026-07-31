@@ -3,10 +3,14 @@
     --text: #cdd6f4;
     --mauve: #cba6f7;
     --surface: #313244;
+    --green: #a6e3a1;
+    --red: #f38ba8;
+    --yellow: #f9e2af;
+    --subtext: #a6adc8;
 }
 
 body {
-    width: 280px;
+    width: 300px;
     margin: 0;
     font-family: -apple-system, sans-serif;
     background: var(--base);
@@ -23,6 +27,14 @@ h1 {
     color: var(--mauve);
 }
 
+h2 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--subtext);
+    margin: 16px 0 8px;
+}
+
 .status {
     font-size: 13px;
     margin-bottom: 12px;
@@ -36,19 +48,89 @@ h1 {
     align-items: center;
     gap: 8px;
     font-size: 13px;
-    margin-bottom: 12px;
 }
 
-.last-sync {
+.history-list {
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.history-empty {
     font-size: 12px;
-    opacity: 0.8;
-    margin-bottom: 12px;
-    min-height: 32px;
+    color: var(--subtext);
+    padding: 8px 0;
+}
+
+.history-item {
+    background: var(--surface);
+    border-radius: 6px;
+    padding: 8px 10px;
+    border-left: 3px solid transparent;
+}
+
+.history-item.success {
+    border-left-color: var(--green);
+}
+
+.history-item.failed {
+    border-left-color: var(--red);
+}
+
+.history-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.history-title {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.history-meta {
+    font-size: 11px;
+    color: var(--subtext);
+    margin-top: 2px;
+}
+
+.diff-tag {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.diff-Easy {
+    background: rgba(166, 227, 161, 0.2);
+    color: var(--green);
+}
+
+.diff-Medium {
+    background: rgba(249, 226, 175, 0.2);
+    color: var(--yellow);
+}
+
+.diff-Hard {
+    background: rgba(243, 139, 168, 0.2);
+    color: var(--red);
+}
+
+.diff-Unknown {
+    background: rgba(166, 173, 200, 0.2);
+    color: var(--subtext);
 }
 
 button {
     width: 100%;
     padding: 8px;
+    margin-top: 14px;
     border: none;
     border-radius: 6px;
     background: var(--mauve);
