@@ -34,10 +34,19 @@ async function getFile({ token, owner, repo, path, branch }) {
   return res.json();
 }
 
-async function upsertFile({ token, owner, repo, path, content, message, branch }) {
-  const existing = await getFile({ token, owner, repo, path, branch });
+// knownSha: pass the sha you already fetched to skip a redundant GET.
+// - undefined  -> look it up (default, backward compatible)
+// - null       -> known not to exist, skip lookup, create new file
+// - a string   -> known sha, skip lookup, update existing file
+async function upsertFile({ token, owner, repo, path, content, message, branch, knownSha }) {
+  let sha = knownSha;
+  if (sha === undefined) {
+    const existing = await getFile({ token, owner, repo, path, branch });
+    sha = existing ? existing.sha : null;
+  }
+
   const body = { message, content: b64EncodeUnicode(content), branch };
-  if (existing) body.sha = existing.sha;
+  if (sha) body.sha = sha;
 
   const url = `${API_BASE}/repos/${owner}/${repo}/contents/${encodePath(path)}`;
   const res = await fetch(url, {
@@ -111,9 +120,33 @@ async function handleAcceptedSubmission(payload) {
   const commitMessage = `${payload.slug} — ${payload.runtime || 'N/A'}, ${payload.memory || 'N/A'}`;
 
   try {
-    console.log('[LeetMeC0de] Pushing to GitHub:', codePath);
-    await upsertFile({ ...config, path: codePath, content: fullContent, message: commitMessage });
-    console.log('[LeetMeC0de] ✅ Pushed successfully');
+    console.log('[LeetMeC0de] Checking existing file:', codePath);
+    const existingCode = await getFile({ ...config, path: codePath });
+
+    let skippedCode = false;
+    if (existingCode && existingCode.content) {
+      const existingDecoded = decodeURIComponent(escape(atob(existingCode.content.replace(/\n/g, ''))));
+      // Strip everything up to and including the header block before comparing,
+      // since the header always contains a fresh timestamp.
+      const existingBody = existingDecoded.split('\n\n').slice(1).join('\n\n').trim();
+      const newBody = payload.code.trim();
+      if (existingBody === newBody) {
+        console.log('[LeetMeC0de] ⏭️ Code unchanged, skipping commit');
+        skippedCode = true;
+      }
+    }
+
+    if (!skippedCode) {
+      console.log('[LeetMeC0de] Pushing to GitHub:', codePath);
+      await upsertFile({
+        ...config,
+        path: codePath,
+        content: fullContent,
+        message: commitMessage,
+        knownSha: existingCode ? existingCode.sha : null
+      });
+      console.log('[LeetMeC0de] ✅ Pushed successfully');
+    }
 
     if (config.includeReadme) {
       const readmePath = `${basePath}/README.md`;
@@ -132,7 +165,13 @@ async function handleAcceptedSubmission(payload) {
             ``
           ].join('\n');
 
-          await upsertFile({ ...config, path: readmePath, content: readmeContent, message: `Add problem statement for ${payload.slug}` });
+          await upsertFile({
+            ...config,
+            path: readmePath,
+            content: readmeContent,
+            message: `Add problem statement for ${payload.slug}`,
+            knownSha: null
+          });
           console.log('[LeetMeC0de] 📄 README written');
         }
       } catch (err) {
@@ -145,7 +184,7 @@ async function handleAcceptedSubmission(payload) {
       title: payload.title || payload.slug,
       difficulty,
       status: 'success',
-      message: `Pushed to ${config.owner}/${config.repo}`
+      message: skippedCode ? 'No changes — skipped' : `Pushed to ${config.owner}/${config.repo}`
     });
   } catch (err) {
     console.error('[LeetMeC0de] ❌ GitHub push failed:', err);
