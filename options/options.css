@@ -1,12 +1,13 @@
 :root {
-  --base: #1e1e2e;
-  --text: #cdd6f4;
-  --mauve: #cba6f7;
-  --surface: #313244;
-  --surface2: #45475a;
-  --green: #a6e3a1;
-  --red: #f38ba8;
-  --subtext: #a6adc8;
+  --base: #0d0f12;
+  --surface: #191b1f;
+  --surface2: #2a2d34;
+  --text: #e8eaed;
+  --subtext: #8b93a1;
+  --accent: #B8C4CE;
+  --accent-text: #0d0f12;
+  --green: #8fd4a8;
+  --red: #e8879a;
 }
 
 * {
@@ -31,7 +32,7 @@ body {
 }
 
 h1 {
-  color: var(--mauve);
+  color: var(--accent);
   font-size: 22px;
   margin: 0;
 }
@@ -44,7 +45,7 @@ h1 {
 
 .card {
   background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--surface);
+  border: 1px solid var(--surface2);
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 16px;
@@ -117,7 +118,7 @@ select {
 input:focus,
 select:focus {
   outline: none;
-  border-color: var(--mauve);
+  border-color: var(--accent);
 }
 
 .checkbox-row {
@@ -153,8 +154,8 @@ select:focus {
 }
 
 .btn-secondary:hover {
-  border-color: var(--mauve);
-  color: var(--mauve);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .test-result {
@@ -176,15 +177,15 @@ select:focus {
   margin-top: 4px;
   border: none;
   border-radius: 8px;
-  background: var(--mauve);
-  color: var(--base);
+  background: var(--accent);
+  color: var(--accent-text);
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
 }
 
 .btn-primary:hover {
-  opacity: 0.9;
+  opacity: 0.88;
 }
 
 .save-status {

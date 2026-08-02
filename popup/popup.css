@@ -1,12 +1,14 @@
 :root {
-    --base: #1e1e2e;
-    --text: #cdd6f4;
-    --mauve: #cba6f7;
-    --surface: #313244;
-    --green: #a6e3a1;
-    --red: #f38ba8;
-    --yellow: #f9e2af;
-    --subtext: #a6adc8;
+    --base: #0d0f12;
+    --surface: #191b1f;
+    --surface2: #2a2d34;
+    --text: #e8eaed;
+    --subtext: #8b93a1;
+    --accent: #B8C4CE;
+    --accent-text: #0d0f12;
+    --green: #8fd4a8;
+    --red: #e8879a;
+    --yellow: #e0c88f;
 }
 
 body {
@@ -24,7 +26,7 @@ body {
 h1 {
     font-size: 16px;
     margin: 0 0 12px;
-    color: var(--mauve);
+    color: var(--accent);
 }
 
 h2 {
@@ -41,6 +43,7 @@ h2 {
     padding: 8px;
     border-radius: 6px;
     background: var(--surface);
+    border: 1px solid var(--surface2);
 }
 
 .toggle-row {
@@ -56,17 +59,12 @@ h2 {
     display: flex;
     flex-direction: column;
     gap: 6px;
-
-    /* Hide scrollbar visually while keeping scroll functionality */
     scrollbar-width: none;
-    /* Firefox */
     -ms-overflow-style: none;
-    /* old Edge/IE */
 }
 
 .history-list::-webkit-scrollbar {
     display: none;
-    /* Chrome, Brave, Edge (Chromium) */
 }
 
 .history-empty {
@@ -77,6 +75,7 @@ h2 {
 
 .history-item {
     background: var(--surface);
+    border: 1px solid var(--surface2);
     border-radius: 6px;
     padding: 8px 10px;
     border-left: 3px solid transparent;
@@ -119,22 +118,22 @@ h2 {
 }
 
 .diff-Easy {
-    background: rgba(166, 227, 161, 0.2);
+    background: rgba(143, 212, 168, 0.15);
     color: var(--green);
 }
 
 .diff-Medium {
-    background: rgba(249, 226, 175, 0.2);
+    background: rgba(224, 200, 143, 0.15);
     color: var(--yellow);
 }
 
 .diff-Hard {
-    background: rgba(243, 139, 168, 0.2);
+    background: rgba(232, 135, 154, 0.15);
     color: var(--red);
 }
 
 .diff-Unknown {
-    background: rgba(166, 173, 200, 0.2);
+    background: rgba(139, 147, 161, 0.15);
     color: var(--subtext);
 }
 
@@ -144,12 +143,12 @@ button {
     margin-top: 14px;
     border: none;
     border-radius: 6px;
-    background: var(--mauve);
-    color: var(--base);
+    background: var(--accent);
+    color: var(--accent-text);
     font-weight: 600;
     cursor: pointer;
 }
 
 button:hover {
-    opacity: 0.9;
+    opacity: 0.88;
 }
