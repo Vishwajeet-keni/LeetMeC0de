@@ -15,19 +15,29 @@
   "content_scripts": [
     {
       "matches": ["https://leetcode.com/problems/*"],
-      "js": ["leetcode-detector.js"],
+      "js": ["scripts/leetcode-detector.js"],
       "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["injected.js"],
+      "resources": ["scripts/injected.js"],
       "matches": ["https://leetcode.com/*"]
     }
   ],
   "action": {
-    "default_popup": "popup.html",
-    "default_title": "LeetMeC0de"
+    "default_popup": "popup/popup.html",
+    "default_title": "LeetMeC0de",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   },
-  "options_page": "options.html"
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "options_page": "options/options.html"
 }

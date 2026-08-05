@@ -7,25 +7,31 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('folderStructure').value = config.folderStructure || 'by-difficulty';
   document.getElementById('includeReadme').checked = config.includeReadme !== false;
 
+  const dot = document.getElementById('connectionDot');
+
   document.getElementById('testBtn').addEventListener('click', async () => {
     const token = document.getElementById('token').value.trim();
     const owner = document.getElementById('owner').value.trim();
     const repo = document.getElementById('repo').value.trim();
     const resultEl = document.getElementById('testResult');
     resultEl.textContent = 'Testing…';
+    resultEl.className = 'test-result';
+    dot.className = 'dot dot-idle';
     try {
       const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
       });
       if (res.ok) {
         resultEl.textContent = '✔ Connected';
-        resultEl.style.color = '#a6e3a1';
+        resultEl.className = 'test-result success';
+        dot.className = 'dot dot-connected';
       } else {
         throw new Error(`Status ${res.status}`);
       }
     } catch (err) {
       resultEl.textContent = `✘ ${err.message}`;
-      resultEl.style.color = '#f38ba8';
+      resultEl.className = 'test-result error';
+      dot.className = 'dot dot-error';
     }
   });
 

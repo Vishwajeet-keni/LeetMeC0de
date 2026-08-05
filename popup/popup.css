@@ -1,0 +1,154 @@
+:root {
+    --base: #0d0f12;
+    --surface: #191b1f;
+    --surface2: #2a2d34;
+    --text: #e8eaed;
+    --subtext: #8b93a1;
+    --accent: #B8C4CE;
+    --accent-text: #0d0f12;
+    --green: #8fd4a8;
+    --red: #e8879a;
+    --yellow: #e0c88f;
+}
+
+body {
+    width: 300px;
+    margin: 0;
+    font-family: -apple-system, sans-serif;
+    background: var(--base);
+    color: var(--text);
+}
+
+.container {
+    padding: 16px;
+}
+
+h1 {
+    font-size: 16px;
+    margin: 0 0 12px;
+    color: var(--accent);
+}
+
+h2 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--subtext);
+    margin: 16px 0 8px;
+}
+
+.status {
+    font-size: 13px;
+    margin-bottom: 12px;
+    padding: 8px;
+    border-radius: 6px;
+    background: var(--surface);
+    border: 1px solid var(--surface2);
+}
+
+.toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.history-list {
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.history-list::-webkit-scrollbar {
+    display: none;
+}
+
+.history-empty {
+    font-size: 12px;
+    color: var(--subtext);
+    padding: 8px 0;
+}
+
+.history-item {
+    background: var(--surface);
+    border: 1px solid var(--surface2);
+    border-radius: 6px;
+    padding: 8px 10px;
+    border-left: 3px solid transparent;
+}
+
+.history-item.success {
+    border-left-color: var(--green);
+}
+
+.history-item.failed {
+    border-left-color: var(--red);
+}
+
+.history-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.history-title {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.history-meta {
+    font-size: 11px;
+    color: var(--subtext);
+    margin-top: 2px;
+}
+
+.diff-tag {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.diff-Easy {
+    background: rgba(143, 212, 168, 0.15);
+    color: var(--green);
+}
+
+.diff-Medium {
+    background: rgba(224, 200, 143, 0.15);
+    color: var(--yellow);
+}
+
+.diff-Hard {
+    background: rgba(232, 135, 154, 0.15);
+    color: var(--red);
+}
+
+.diff-Unknown {
+    background: rgba(139, 147, 161, 0.15);
+    color: var(--subtext);
+}
+
+button {
+    width: 100%;
+    padding: 8px;
+    margin-top: 14px;
+    border: none;
+    border-radius: 6px;
+    background: var(--accent);
+    color: var(--accent-text);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.88;
+}
