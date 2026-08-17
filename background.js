@@ -22,6 +22,40 @@ function encodePath(path) {
   return path.split('/').map(encodeURIComponent).join('/');
 }
 
+// LeetCode slugs are lowercase-kebab-case; difficulty is one of a fixed set.
+// Anything else is untrusted input that must never reach a file path unchecked.
+const SLUG_RE = /^[a-z0-9-]{1,120}$/;
+const VALID_DIFFICULTIES = new Set(['Easy', 'Medium', 'Hard', 'Unknown']);
+
+function isSafePathSegment(segment) {
+  return typeof segment === 'string' &&
+    segment.length > 0 &&
+    !segment.includes('/') &&
+    !segment.includes('\\') &&
+    segment !== '.' &&
+    segment !== '..';
+}
+
+function validateSubmissionPayload(payload) {
+  if (!payload || typeof payload !== 'object') {
+    throw new Error('Invalid submission payload');
+  }
+  if (typeof payload.slug !== 'string' || !SLUG_RE.test(payload.slug)) {
+    throw new Error('Invalid or unexpected problem slug');
+  }
+  if (!isSafePathSegment(payload.slug)) {
+    throw new Error('Unsafe problem slug');
+  }
+  const difficulty = payload.difficulty || 'Unknown';
+  if (!VALID_DIFFICULTIES.has(difficulty) || !isSafePathSegment(difficulty)) {
+    throw new Error('Invalid difficulty value');
+  }
+  if (typeof payload.code !== 'string' || payload.code.length === 0) {
+    throw new Error('Missing submission code');
+  }
+  return true;
+}
+
 function b64EncodeUnicode(str) {
   return btoa(unescape(encodeURIComponent(str)));
 }
@@ -103,6 +137,14 @@ async function handleAcceptedSubmission(payload) {
   if (!config.token || !config.owner || !config.repo) {
     console.warn('[LeetMeC0de] Not configured');
     await pushHistoryEntry({ slug: payload.slug, status: 'failed', title: 'Not configured', message: 'Open extension options to add your GitHub token and repo.' });
+    return;
+  }
+
+  try {
+    validateSubmissionPayload(payload);
+  } catch (err) {
+    console.error('[LeetMeC0de] ❌ Rejected suspicious submission payload:', err.message, payload);
+    await pushHistoryEntry({ slug: typeof payload?.slug === 'string' ? payload.slug.slice(0, 60) : 'unknown', status: 'failed', title: 'Blocked', message: err.message });
     return;
   }
 
@@ -201,6 +243,11 @@ async function handleAcceptedSubmission(payload) {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log('[LeetMeC0de] Got message:', message);
+
+  if (sender.id !== chrome.runtime.id) {
+    console.warn('[LeetMeC0de] Ignoring message from unexpected sender:', sender.id);
+    return false;
+  }
 
   if (message.type === 'SUBMISSION_ACCEPTED') {
     handleAcceptedSubmission(message.payload)

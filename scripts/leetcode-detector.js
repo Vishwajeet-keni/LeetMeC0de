@@ -8,6 +8,7 @@
 
   window.addEventListener('message', (event) => {
     if (event.source !== window) return;
+    if (event.origin !== 'https://leetcode.com') return;
     const data = event.data;
     if (!data || data.source !== 'leetmec0de' || data.type !== 'SUBMISSION_ACCEPTED') return;
 
